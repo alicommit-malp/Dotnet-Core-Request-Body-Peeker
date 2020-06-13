@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Title>HttpRequest Body Peeker in .Net Core</Title>
+    <Authors>Ali Alp</Authors>
+    <Description>A simple c# ASP.Net Core extension to read the HTTP request body without consuming it </Description>
+    <Copyright>Null</Copyright>
+    <PackageProjectUrl>https://github.com/alicommit-malp/Dotnet-Core-Request-Body-Peeker</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.ddcom/alicommit-malp/Dotnet-Core-Request-Body-Peeker/blob/master/LICENSE</PackageLicenseUrl>
+    <license>MIT</license>
+    <RepositoryUrl>https://github.com/alicommit-malp/Dotnet-Core-Request-Body-Peeker</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <PackageTags>dotnet core  httpRequest body peek no cunsumption</PackageTags>
+    <PackageReleaseNotes>support generic parsin , async , sync </PackageReleaseNotes>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+</Project>

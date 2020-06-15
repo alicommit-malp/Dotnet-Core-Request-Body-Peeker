@@ -14,6 +14,7 @@
     <RepositoryType>GIT</RepositoryType>
     <PackageTags>dotnet core  httpRequest body peek no cunsumption</PackageTags>
     <PackageReleaseNotes>support generic parsin , async , sync </PackageReleaseNotes>
+    <PackageVersion>1.0.1</PackageVersion>
   </PropertyGroup>
 
   <ItemGroup>

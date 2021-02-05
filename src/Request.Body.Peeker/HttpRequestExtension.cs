@@ -2,7 +2,7 @@
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
-using Newtonsoft.Json;
+using static System.String;
 
 namespace Request.Body.Peeker
 {
@@ -12,15 +12,43 @@ namespace Request.Body.Peeker
         /// Peek at the Http request stream without consuming it
         /// </summary>
         /// <param name="request">Http Request object</param>
+        /// <param name="encoding">user's desired encoding</param>
         /// <returns>string representation of the request body</returns>
-        public static string PeekBody(this HttpRequest request)
+        public static string PeekBody(this HttpRequest request, Encoding encoding = null)
         {
             try
             {
+                if (encoding == null) encoding = new UTF8Encoding();
                 request.EnableBuffering();
                 var buffer = new byte[Convert.ToInt32(request.ContentLength)];
+                if (buffer.Length == 0) return Empty;
+
                 request.Body.Read(buffer, 0, buffer.Length);
-                return Encoding.UTF8.GetString(buffer);
+                return encoding.GetString(buffer);
+            }
+            finally
+            {
+                request.Body.Position = 0;
+            }
+        }
+
+        /// <summary>
+        /// Asynchronous Peek at the Http request stream without consuming it
+        /// </summary>
+        /// <param name="request">Http Request object</param>
+        /// <param name="encoding">user's desired encoding</param>
+        /// <returns>string representation of the request body</returns>
+        public static async Task<string> PeekBodyAsync(this HttpRequest request, Encoding encoding = null)
+        {
+            try
+            {
+                if (encoding == null) encoding = new UTF8Encoding();
+                request.EnableBuffering();
+                var buffer = new byte[Convert.ToInt32(request.ContentLength)];
+                if (buffer.Length == 0) return Empty;
+
+                await request.Body.ReadAsync(buffer, 0, buffer.Length);
+                return encoding.GetString(buffer);
             }
             finally
             {
@@ -32,37 +60,47 @@ namespace Request.Body.Peeker
         /// Peek at the Http request stream without consuming it
         /// </summary>
         /// <param name="request">Http Request object</param>
+        /// <param name="encoding">user's desired encoding</param>
+        /// <param name="serializer"><see cref="ISerializer"/></param>
         /// <returns>T type which provided at invocation</returns>
-        public static T PeekBody<T>(this HttpRequest request) where T : class
+        public static T PeekBody<T>(this HttpRequest request, Encoding encoding = null, ISerializer serializer = null)
+            where T : class
         {
             try
             {
+                if (encoding == null) encoding = new UTF8Encoding();
+                if (serializer == null) serializer = new DefaultSerializer();
                 request.EnableBuffering();
                 var buffer = new byte[Convert.ToInt32(request.ContentLength)];
-                request.Body.Read(buffer, 0, buffer.Length);
-                var bodyAsText = Encoding.UTF8.GetString(buffer);
-                return JsonConvert.DeserializeObject<T>(bodyAsText);
+                request.Body.ReadAsync(buffer, 0, buffer.Length);
+                var bodyAsText = encoding.GetString(buffer);
+                return serializer.DeserializeObject<T>(bodyAsText);
             }
             finally
             {
                 request.Body.Position = 0;
             }
         }
-        
+
         /// <summary>
         /// Peek asynchronously at the Http request stream without consuming it
         /// </summary>
         /// <param name="request">Http Request object</param>
+        /// <param name="encoding">user's desired encoding</param>
+        /// <param name="serializer"><see cref="ISerializer"/></param>
         /// <returns>T type which provided at invocation</returns>
-        public static async Task<T> PeekBodyAsync<T>(this HttpRequest request) where T : class
+        public static async Task<T> PeekBodyAsync<T>(this HttpRequest request, Encoding encoding = null,
+            ISerializer serializer = null) where T : class
         {
             try
             {
+                if (encoding == null) encoding = new UTF8Encoding();
+                if (serializer == null) serializer = new DefaultSerializer();
                 request.EnableBuffering();
                 var buffer = new byte[Convert.ToInt32(request.ContentLength)];
                 await request.Body.ReadAsync(buffer, 0, buffer.Length);
-                var bodyAsText = Encoding.UTF8.GetString(buffer);
-                return JsonConvert.DeserializeObject<T>(bodyAsText);
+                var bodyAsText = encoding.GetString(buffer);
+                return serializer.DeserializeObject<T>(bodyAsText);
             }
             finally
             {

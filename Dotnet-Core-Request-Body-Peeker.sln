@@ -11,6 +11,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{C837E1BD-1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Request.Body.Peeker.Test", "test\Request.Body.Peeker.Test\Request.Body.Peeker.Test.csproj", "{AFF6030F-F66C-44ED-9A79-CA16B19CECDF}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "benchMark", "benchMark", "{580807AC-DD32-4C09-8419-F6F7272A722D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Request.Body.Peeker.BenchMark", "Request.Body.Peeker.BenchMark\Request.Body.Peeker.BenchMark.csproj", "{01B1CA18-D94F-4043-A0F2-B3F3DD6A48DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,9 +52,22 @@ Global
 		{AFF6030F-F66C-44ED-9A79-CA16B19CECDF}.Release|x64.Build.0 = Release|Any CPU
 		{AFF6030F-F66C-44ED-9A79-CA16B19CECDF}.Release|x86.ActiveCfg = Release|Any CPU
 		{AFF6030F-F66C-44ED-9A79-CA16B19CECDF}.Release|x86.Build.0 = Release|Any CPU
+		{01B1CA18-D94F-4043-A0F2-B3F3DD6A48DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{01B1CA18-D94F-4043-A0F2-B3F3DD6A48DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{01B1CA18-D94F-4043-A0F2-B3F3DD6A48DE}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{01B1CA18-D94F-4043-A0F2-B3F3DD6A48DE}.Debug|x64.Build.0 = Debug|Any CPU
+		{01B1CA18-D94F-4043-A0F2-B3F3DD6A48DE}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{01B1CA18-D94F-4043-A0F2-B3F3DD6A48DE}.Debug|x86.Build.0 = Debug|Any CPU
+		{01B1CA18-D94F-4043-A0F2-B3F3DD6A48DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{01B1CA18-D94F-4043-A0F2-B3F3DD6A48DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{01B1CA18-D94F-4043-A0F2-B3F3DD6A48DE}.Release|x64.ActiveCfg = Release|Any CPU
+		{01B1CA18-D94F-4043-A0F2-B3F3DD6A48DE}.Release|x64.Build.0 = Release|Any CPU
+		{01B1CA18-D94F-4043-A0F2-B3F3DD6A48DE}.Release|x86.ActiveCfg = Release|Any CPU
+		{01B1CA18-D94F-4043-A0F2-B3F3DD6A48DE}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{4A47F7E5-4DB1-4E09-B20A-DF06984CC800} = {3066685C-077E-43DF-A1B8-E96D6ADF64C1}
 		{AFF6030F-F66C-44ED-9A79-CA16B19CECDF} = {C837E1BD-1D38-460F-9120-B53580F8E39D}
+		{01B1CA18-D94F-4043-A0F2-B3F3DD6A48DE} = {580807AC-DD32-4C09-8419-F6F7272A722D}
 	EndGlobalSection
 EndGlobal

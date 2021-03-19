@@ -54,4 +54,19 @@ Writing all above code, or having a helper class in each project to take care of
 >
 >Check out the source code from [Github](https://github.com/alicommit-malp/Dotnet-Core-Request-Body-Peeker)
 
+## BenchMark
+BenchmarkDotNet=v0.12.1, OS=macOS 11.2.3 (20D91) [Darwin 20.3.0]
+- Intel Core i7-8850H CPU 2.60GHz (Coffee Lake), 1 CPU, 12 logical and 6 physical cores
+.NET Core SDK=5.0.101
+- [Host]     : .NET Core 5.0.1 (CoreCLR 5.0.120.57516, CoreFX 5.0.120.57516), X64 RyuJIT
+- DefaultJob : .NET Core 5.0.1 (CoreCLR 5.0.120.57516, CoreFX 5.0.120.57516), X64 RyuJIT
+
+
+|        Method |     Mean |    Error |   StdDev |   Median |  Gen 0 |  Gen 1 | Gen 2 | Allocated |
+|-------------- |---------:|---------:|---------:|---------:|-------:|-------:|------:|----------:|
+| PeekBodyAsync | 12.09 us | 0.766 us | 2.160 us | 11.25 us | 0.6714 | 0.1831 |     - |   3.63 KB |
+|      PeekBody | 12.37 us | 0.556 us | 1.595 us | 12.14 us | 0.7019 | 0.1678 |     - |   3.63 KB |
+
+
+
 Happy coding.

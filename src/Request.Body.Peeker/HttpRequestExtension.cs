@@ -14,27 +14,22 @@ namespace Request.Body.Peeker
         /// <param name="request">Http Request object</param>
         /// <param name="encoding">user's desired encoding</param>
         /// <returns>string representation of the request body</returns>
-        public static async Task<T> PeekBodyAsync<T>(
-            this HttpRequest request,
-            Encoding? encoding = null,
-            ISerializer? serializer = null)
-            where T : class
+        public static string PeekBody(this HttpRequest request, Encoding? encoding = null)
         {
-            T obj;
             try
             {
                 encoding ??= new UTF8Encoding();
-                serializer ??= new DefaultSerializer();
                 request.EnableBuffering();
                 var buffer = new byte[Convert.ToInt32(request.ContentLength)];
-                await request.Body.ReadExactlyAsync(buffer, 0, buffer.Length);
-                obj = serializer.DeserializeObject<T>(encoding.GetString(buffer));
+                if (buffer.Length == 0) return Empty;
+
+                request.Body.Read(buffer, 0, buffer.Length);
+                return encoding.GetString(buffer);
             }
             finally
             {
                 request.Body.Position = 0L;
             }
-            return obj;
         }
 
         /// <summary>
@@ -50,7 +45,7 @@ namespace Request.Body.Peeker
                 encoding ??= new UTF8Encoding();
                 request.EnableBuffering();
                 var buffer = new byte[Convert.ToInt32(request.ContentLength)];
-                if (buffer.Length == 0) return Empty;
+                if (buffer.Length == 0) return string.Empty;
                 await request.Body.ReadExactlyAsync(buffer, 0, buffer.Length);
                 return encoding.GetString(buffer);
             }

@@ -7,7 +7,7 @@
 >Check out the source code from [Github](https://github.com/alicommit-malp/Dotnet-Core-Request-Body-Peeker)
 
 ```bash
-Install-Package Request.Body.Peeker -Version 1.0.0
+Install-Package Request.Body.Peeker
 ```
 
 After installation you can read the HttpContext request body without consuming it as follows

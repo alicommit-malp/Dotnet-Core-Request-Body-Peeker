@@ -1,3 +1,4 @@
+using System;
 using Newtonsoft.Json;
 
 namespace Request.Body.Peeker
@@ -6,7 +7,7 @@ namespace Request.Body.Peeker
     {
         public T DeserializeObject<T>(string value)
         {
-            return JsonConvert.DeserializeObject<T>(value);
+            return JsonConvert.DeserializeObject<T>(value) ?? throw new InvalidOperationException();
         }
 
         public string SerializeObject(object value)

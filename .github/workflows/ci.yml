@@ -1,0 +1,123 @@
+# Release: tag the commit as vX.Y.Z (or vX.Y.Z-rc.1) and push the tag.
+#   git tag v2.0.0 && git push origin v2.0.0
+# The publish job pushes the package to nuget.org using Trusted Publishing (OIDC);
+# no API key secret is needed.
+# Setup:
+# - nuget.org > your username > Trusted Publishing > add a policy with
+#   Repository Owner: alicommit-malp, Repository: Dotnet-Core-Request-Body-Peeker,
+#   Workflow File: ci.yml, Environment: nuget.
+# - The NuGet/login step uses the nuget.org profile name that owns the policy
+#   (AliTabryzy). Change it there if the package owner changes.
+name: CI
+
+on:
+  push:
+    branches: [master]
+    tags: ['v*']
+  pull_request:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  DOTNET_NOLOGO: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: |
+            8.0.x
+            9.0.x
+            10.0.x
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Compute version
+        run: |
+          if [ "$GITHUB_REF_TYPE" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+            if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+              echo "Tag '$GITHUB_REF_NAME' is not a valid version (expected vX.Y.Z or vX.Y.Z-suffix)"
+              exit 1
+            fi
+          else
+            VERSION="2.0.0-ci.${{ github.run_number }}"
+          fi
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+
+      - name: Build
+        run: dotnet build -c Release --no-restore -p:Version="$VERSION"
+
+      - name: Test
+        run: dotnet test -c Release --no-build --logger "trx;LogFilePrefix=test-results"
+
+      - name: Vulnerability gate
+        run: |
+          output="$(dotnet list package --vulnerable --include-transitive 2>&1)" || {
+            echo "$output"
+            echo "dotnet list package failed"
+            exit 1
+          }
+          echo "$output"
+          if grep -q 'has the following vulnerable packages' <<< "$output"; then
+            echo "Vulnerable packages found"
+            exit 1
+          fi
+
+      - name: Pack
+        run: dotnet pack src/Request.Body.Peeker -c Release --no-build -o artifacts -p:Version="$VERSION"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: nuget
+          path: |
+            artifacts/*.nupkg
+            artifacts/*.snupkg
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v7
+        if: always()
+        with:
+          name: test-results
+          path: '**/test-results*.trx'
+
+  publish:
+    needs: build-test
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    environment: nuget
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: nuget
+          path: artifacts
+
+      - name: NuGet login (OIDC)
+        id: login
+        uses: NuGet/login@v1
+        with:
+          user: AliTabryzy
+
+      - name: Push to nuget.org
+        env:
+          NUGET_API_KEY: ${{ steps.login.outputs.NUGET_API_KEY }}
+        run: dotnet nuget push "artifacts/*.nupkg" --api-key "$NUGET_API_KEY" --source https://api.nuget.org/v3/index.json --skip-duplicate

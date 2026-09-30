@@ -237,11 +237,11 @@ namespace Request.Body.Peeker.Test
         }
 
         [Test]
-        public void PeekBodyAsyncT_ThrowsArgumentNull_ForNullSerializer()
+        public async Task PeekBodyAsyncT_ThrowsArgumentNull_ForNullSerializer()
         {
             var context = RequestFactory.Create(Utf8("{}"), "application/json");
 
-            Assert.ThrowsAsync<ArgumentNullException>(() => context.Request.PeekBodyAsync<Person>((IBodySerializer)null!));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => context.Request.PeekBodyAsync<Person>((IBodySerializer)null!));
         }
 
         [Test]
@@ -287,22 +287,22 @@ namespace Request.Body.Peeker.Test
         }
 
         [Test]
-        public void PeekBodyAsync_ThrowsIOException_WhenBufferLimitExceeded()
+        public async Task PeekBodyAsync_ThrowsIOException_WhenBufferLimitExceeded()
         {
             var context = RequestFactory.Create(new byte[64]);
 
-            Assert.ThrowsAsync<IOException>(() => context.Request.PeekBodyAsync(options: new PeekOptions { BufferLimit = 16 }));
+            await Assert.ThrowsAsync<IOException>(() => context.Request.PeekBodyAsync(options: new PeekOptions { BufferLimit = 16 }));
             Assert.That(context.Request.Body.Position, Is.Zero);
         }
 
         [Test]
-        public void PeekBodyAsync_Throws_WhenCancelled()
+        public async Task PeekBodyAsync_Throws_WhenCancelled()
         {
             var context = RequestFactory.Create(Utf8("cancel me"));
             using var cts = new CancellationTokenSource();
             cts.Cancel();
 
-            Assert.CatchAsync<OperationCanceledException>(() => context.Request.PeekBodyAsync(cancellationToken: cts.Token));
+            await Assert.CatchAsync<OperationCanceledException>(() => context.Request.PeekBodyAsync(cancellationToken: cts.Token));
         }
 
         [Test]
@@ -311,20 +311,20 @@ namespace Request.Body.Peeker.Test
             var bytes = Utf8("{\"name\":");
             var context = RequestFactory.Create(bytes, "application/json");
 
-            Assert.CatchAsync<JsonException>(() => context.Request.PeekBodyAsync<Person>());
+            await Assert.CatchAsync<JsonException>(() => context.Request.PeekBodyAsync<Person>());
             await AssertRereadable(context.Request, bytes);
         }
 
         [Test]
-        public void PeekBodyAsync_ThrowsArgumentNull_ForNullRequest()
+        public async Task PeekBodyAsync_ThrowsArgumentNull_ForNullRequest()
         {
             HttpRequest request = null!;
 
-            Assert.ThrowsAsync<ArgumentNullException>(() => request.PeekBodyAsync());
-            Assert.ThrowsAsync<ArgumentNullException>(() => request.PeekBodyBytesAsync());
-            Assert.ThrowsAsync<ArgumentNullException>(() => request.PeekBodyAsync<Person>());
-            Assert.ThrowsAsync<ArgumentNullException>(() => request.PeekBodyAsync(TestJsonContext.Default.Person));
-            Assert.ThrowsAsync<ArgumentNullException>(() => request.PeekBodyAsync<Person>(new SynchronousReadingSerializer()));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => request.PeekBodyAsync());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => request.PeekBodyBytesAsync());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => request.PeekBodyAsync<Person>());
+            await Assert.ThrowsAsync<ArgumentNullException>(() => request.PeekBodyAsync(TestJsonContext.Default.Person));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => request.PeekBodyAsync<Person>(new SynchronousReadingSerializer()));
         }
 
         [Test]
@@ -350,26 +350,26 @@ namespace Request.Body.Peeker.Test
         }
 
         [Test]
-        public void PeekBodyAsync_ThrowsAggregateOfReadAndRewindErrors_WhenBothFail()
+        public async Task PeekBodyAsync_ThrowsAggregateOfReadAndRewindErrors_WhenBothFail()
         {
             var readError = new IOException("read failed");
             var rewindError = new IOException("rewind failed");
             var context = new DefaultHttpContext();
             context.Request.Body = new FaultingSeekableStream(Utf8("body"), readError, rewindError, failingPositionSet: null);
 
-            var thrown = Assert.ThrowsAsync<AggregateException>(() => context.Request.PeekBodyAsync());
+            var thrown = await Assert.ThrowsAsync<AggregateException>(() => context.Request.PeekBodyAsync());
 
             Assert.That(thrown!.InnerExceptions, Is.EqualTo(new Exception[] { readError, rewindError }));
         }
 
         [Test]
-        public void PeekBodyAsync_PropagatesRewindError_WhenReadSucceeds()
+        public async Task PeekBodyAsync_PropagatesRewindError_WhenReadSucceeds()
         {
             var rewindError = new IOException("rewind failed");
             var context = new DefaultHttpContext();
             context.Request.Body = new FaultingSeekableStream(Utf8("body"), readError: null, rewindError, failingPositionSet: 3);
 
-            var thrown = Assert.ThrowsAsync<IOException>(() => context.Request.PeekBodyAsync());
+            var thrown = await Assert.ThrowsAsync<IOException>(() => context.Request.PeekBodyAsync());
 
             Assert.That(thrown, Is.SameAs(rewindError));
         }
